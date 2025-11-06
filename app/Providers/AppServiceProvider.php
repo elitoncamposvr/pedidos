@@ -2,23 +2,42 @@
 
 namespace App\Providers;
 
+use App\Models\PurchaseRequest;
+use App\Policies\PurchaseRequestPolicy;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        /**
+         * Registro da Policy do sistema de pedidos
+         */
+        Gate::policy(PurchaseRequest::class, PurchaseRequestPolicy::class);
+
+        /**
+         * Gate global — SUPERVISOR tem acesso total
+         */
+        Gate::before(static function (User $user, string $ability): ?bool {
+            return $user->role->value === 'SUPERVISOR' ? true : null;
+        });
+
+        /**
+         * Gates auxiliares (apenas SUPERVISOR)
+         */
+        Gate::define('manageUsers', static fn (User $user): bool =>
+            $user->role->value === 'SUPERVISOR'
+        );
+
+        Gate::define('manageShops', static fn (User $user): bool =>
+            $user->role->value === 'SUPERVISOR'
+        );
     }
 }
