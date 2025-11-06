@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\PurchaseRequest;
 use App\Policies\PurchaseRequestPolicy;
 use App\Models\User;
+use App\Services\ActivityLogger;
+use App\Services\StatusTransitionService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +14,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(ActivityLogger::class);
+        $this->app->singleton(StatusTransitionService::class);
     }
 
     public function boot(): void
